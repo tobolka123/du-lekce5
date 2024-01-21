@@ -1,12 +1,10 @@
 import java.io.*;
 import java.time.LocalDate;
-import java.util.Objects;
-import java.util.Scanner;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.format.DateTimeParseException;
+import java.util.*;
 
 public class PlantManager {
-    private static List listPlants = new ArrayList<>();
+    private static List<Plant> listPlants = new ArrayList<>();
     public static final String OUTPUT_FILE = "rostlina.txt";
 
 
@@ -18,17 +16,30 @@ public class PlantManager {
                     "Nesprávný počet položek na řádku: " + line +
                             "! Počet položek: " + numOfBlocks + ".");
         }
+        String name;
+        String description;
+        name = blocks[0].trim();
+        description = blocks[1].trim();
+        LocalDate planted;
         try {
-            String name = blocks[0].trim();
-            String description = blocks[1].trim();
-            LocalDate planted = LocalDate.parse(blocks[2].trim());
-            LocalDate watering = LocalDate.parse(blocks[3].trim());
-            int frequency = Integer.parseInt(blocks[4].trim());
-            Plant newPlant = new Plant(name, description, planted, watering, frequency);
-            return newPlant;
+            planted = LocalDate.parse(blocks[2].trim());
+        } catch (DateTimeParseException e) {
+            throw new PlantExeption("Chybne zadane datum" + blocks[2]);
+        }
+        LocalDate watering;
+        try {
+            watering = LocalDate.parse(blocks[3].trim());
+        } catch (DateTimeParseException e) {
+            throw new PlantExeption("Chybne zadane datum" + blocks[3]);
+        }
+        int frequency;
+        try {
+            frequency = Integer.parseInt(blocks[4].trim());
         } catch (NumberFormatException e) {
             throw new PlantExeption("Chybně zadané číslo " + blocks[4] + " na řádku č. " + lineNumber + ": " + line + "!");
         }
+        Plant newPlant = new Plant(name, description, planted, watering, frequency);
+        return newPlant;
     }
 
     public static void addPlant(Plant plant) {
@@ -57,10 +68,16 @@ public class PlantManager {
             e.printStackTrace();
         }
     }
-        public static void printPlants () {
-            for (Object lis : listPlants) {
-                System.out.println(lis);
-            }
+    public static void printPlants () {
+        for (Object lis : listPlants) {
+            System.out.println(lis);
         }
     }
+    public static void sort(){
+        Collections.sort(listPlants);
+    }
+    public static void sortWatering() {
+        Collections.sort(listPlants, new PlantWateringComparator());
+    }
+}
 
